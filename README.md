@@ -16,7 +16,7 @@ _Maven_:
 <dependency>
   <groupId>io.tronalddump</groupId>
   <artifactId>client-java</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
@@ -24,7 +24,7 @@ _Gradle_:
 
 ```groovy
 dependencies {
-    compile "io.tronalddump:client-java:1.0.0-SNAPSHOT"
+    compile "io.tronalddump:client-java:1.0.0"
 }
 ```
 

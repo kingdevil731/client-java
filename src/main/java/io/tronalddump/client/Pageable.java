@@ -27,6 +27,8 @@ import static java.util.Objects.requireNonNull;
 /**
  * The class representing pagination information.
  *
+ * Inspired on Spring Data's Pageable (http://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/domain/Pageable.html).
+ *
  * @author Marcel Overdijk
  * @since 1.0.0
  */
@@ -40,15 +42,15 @@ public class Pageable implements Serializable {
     /**
      * Creates a new {@code Pageable} with the give page numner and page size.
      *
-     * @param page the page number, must not be less than one
-     * @param size the page size, must not be less than one
+     * @param page the page number, must not be less than 1
+     * @param size the page size, must not be less than 1
      */
     public Pageable(int page, int size) {
         if (page < 1) {
-            throw new IllegalArgumentException("'page' must not be less than one");
+            throw new IllegalArgumentException("'page' must not be less than 1");
         }
         if (size < 1) {
-            throw new IllegalArgumentException("'size' must not be less than one");
+            throw new IllegalArgumentException("'size' must not be less than 1");
         }
         this.page = page;
         this.size = size;
