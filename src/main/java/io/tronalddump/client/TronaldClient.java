@@ -32,6 +32,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * The official {@code https://api.tronalddump.io} Java client.
  *
@@ -50,7 +52,7 @@ public class TronaldClient {
      * @return the list of available tags
      * @throws TronaldException in case an error occurs while retrieving the tags
      */
-    public List<String> getTags() {
+    public List<String> getTags() throws TronaldException {
         try {
             HttpURLConnection conn = createConnection(BASE_URL + "/tags");
             int respCode = conn.getResponseCode();
@@ -63,8 +65,8 @@ public class TronaldClient {
                 }
                 return tags;
             } else {
-                String errorMessage = getErrorMessage(conn);
-                throw new TronaldException("Error retrieving tags: (#" + respCode + ") " + errorMessage);
+                TronaldException e = createException(conn);
+                throw e;
             }
         } catch (IOException e) {
             throw new TronaldException("Error retrieving tags", e);
@@ -74,11 +76,12 @@ public class TronaldClient {
     /**
      * Returns the quote for the given id.
      *
-     * @param id the unique quote id
+     * @param id the unique quote id, not null
      * @return the quote
      * @throws TronaldException in case an error occurs while retrieving the quote
      */
-    public Quote getQuote(String id) {
+    public Quote getQuote(String id) throws TronaldException {
+        requireNonNull(id, "'id' must not be null");
         try {
             HttpURLConnection conn = createConnection(BASE_URL + "/quote/" + urlEncode(id));
             int respCode = conn.getResponseCode();
@@ -86,8 +89,8 @@ public class TronaldClient {
                 JSONObject jsonObject = new JSONObject(new JSONTokener(conn.getInputStream()));
                 return parseQuote(jsonObject);
             } else {
-                String errorMessage = getErrorMessage(conn);
-                throw new TronaldException("Error retrieving quote: (#" + respCode + ") " + errorMessage);
+                TronaldException e = createException(conn);
+                throw e;
             }
         } catch (IOException e) {
             throw new TronaldException("Error retrieving quote", e);
@@ -100,7 +103,7 @@ public class TronaldClient {
      * @return the quote
      * @throws TronaldException in case an error occurs while retrieving the random quote
      */
-    public Quote getRandomQuote() {
+    public Quote getRandomQuote() throws TronaldException {
         return getRandomQuote(null);
     }
 
@@ -111,7 +114,7 @@ public class TronaldClient {
      * @return the quote
      * @throws TronaldException in case an error occurs while retrieving the random quote
      */
-    public Quote getRandomQuote(String tag) {
+    public Quote getRandomQuote(String tag) throws TronaldException {
         try {
             HttpURLConnection conn;
             if (tag == null) {
@@ -124,11 +127,112 @@ public class TronaldClient {
                 JSONObject jsonObject = new JSONObject(new JSONTokener(conn.getInputStream()));
                 return parseQuote(jsonObject);
             } else {
-                String errorMessage = getErrorMessage(conn);
-                throw new TronaldException("Error retrieving random quote: (#" + respCode + ") " + errorMessage);
+                TronaldException e = createException(conn);
+                throw e;
             }
         } catch (IOException e) {
             throw new TronaldException("Error retrieving random quote", e);
+        }
+    }
+
+    /**
+     * Returns a page of quotes for the given free text query.
+     *
+     * @param query the free text query, not null
+     * @return the page of quotes
+     * @throws TronaldException in case an error occurs while retrieving the random quote
+     */
+    public Page<Quote> search(String query) throws TronaldException {
+        return search(query, 1);
+    }
+
+    /**
+     * Returns a page of quotes for the given free text query.
+     *
+     * @param query the free text query, not null
+     * @param page the page number
+     * @return the page of quotes
+     * @throws TronaldException in case an error occurs while retrieving the random quote
+     */
+    public Page<Quote> search(String query, int page) throws TronaldException {
+        return search(query, page, 25);
+    }
+
+    /**
+     * Returns a page of quotes for the given free text query.
+     *
+     * @param query the free text query, not null
+     * @param page the page number
+     * @param size the page size
+     * @return the page of quotes
+     * @throws TronaldException in case an error occurs while retrieving the random quote
+     */
+    public Page<Quote> search(String query, int page, int size) throws TronaldException {
+        return search(query, new Pageable(page, size));
+    }
+
+    /**
+     * Returns a page of quotes for the given free text query.
+     *
+     * @param query the free text query, not null
+     * @param pageable the pagination inforamtion, not null
+     * @return the page of quotes
+     * @throws TronaldException in case an error occurs while retrieving the random quote
+     */
+    public Page<Quote> search(String query, Pageable pageable) throws TronaldException {
+        requireNonNull(query, "'query' must not be null");
+        requireNonNull(pageable, "'pageable' must not be null");
+        try {
+            StringBuilder sb = new StringBuilder()
+                    .append(BASE_URL + "/search/quote")
+                    .append("?query=").append(urlEncode(query))
+                    .append("&page=").append(pageable.getPage())
+                    .append("&size=").append(pageable.getSize());
+            HttpURLConnection conn = createConnection(sb.toString());
+            int respCode = conn.getResponseCode();
+            if (respCode == HttpURLConnection.HTTP_OK) {
+                JSONObject jsonObject = new JSONObject(new JSONTokener(conn.getInputStream()));
+                long total = jsonObject.optLong("total");
+                List<Quote> content = new ArrayList<>();
+                JSONObject jsonEmbedded = jsonObject.optJSONObject("_embedded");
+                if (jsonEmbedded != null) {
+                    JSONArray jsonQuotes = jsonEmbedded.optJSONArray("quotes");
+                    if (jsonQuotes != null && jsonQuotes.length() > 0) {
+                        for (int i = 0; i < jsonQuotes.length(); i++) {
+                            JSONObject jsonQuote = jsonQuotes.optJSONObject(0);
+                            Quote quote = parseQuote(jsonQuote);
+                            content.add(quote);
+                        }
+                    }
+                }
+                return new Page<>(content, pageable, total);
+            } else {
+                TronaldException e = createException(conn);
+                throw e;
+            }
+        } catch (IOException e) {
+            throw new TronaldException("Error searching quotes", e);
+        }
+    }
+
+    /**
+     * Returns the version string or {@code null} if it cannot be determined.
+     *
+     * @see Package#getImplementationVersion()
+     */
+    private String getVersion() {
+        Package pkg = TronaldClient.class.getPackage();
+        return (pkg != null ? pkg.getImplementationVersion() : null);
+    }
+
+    /**
+     * Encodes the given string.
+     */
+    private String urlEncode(String s) {
+        try {
+            return URLEncoder.encode(s, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new TronaldException("Unable to url encode string: " + s, e);
         }
     }
 
@@ -142,13 +246,13 @@ public class TronaldClient {
     }
 
     /**
-     * Returns the version string or {@code null} if it cannot be determined.
-     * 
-     * @see Package#getImplementationVersion()
+     * Creates a new {@link TronaldHttpException} from the given connection's error stream.
      */
-    private String getVersion() {
-        Package pkg = TronaldClient.class.getPackage();
-        return (pkg != null ? pkg.getImplementationVersion() : null);
+    private TronaldHttpException createException(HttpURLConnection conn) throws IOException {
+        JSONObject jsonObject = new JSONObject(new JSONTokener(conn.getErrorStream()));
+        int status = jsonObject.optInt("status");
+        String message = jsonObject.optString("message");
+        return new TronaldHttpException(status, message);
     }
 
     /**
@@ -180,18 +284,5 @@ public class TronaldClient {
             }
         }
         return quote;
-    }
-
-    private String getErrorMessage(HttpURLConnection conn) throws IOException {
-        JSONObject jsonObject = new JSONObject(new JSONTokener(conn.getErrorStream()));
-        return jsonObject.optString("message");
-    }
-
-    private String urlEncode(String s) {
-        try {
-            return URLEncoder.encode(s, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new TronaldException("Unable to url encode string: " + s, e);
-        }
     }
 }

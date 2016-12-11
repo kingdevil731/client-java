@@ -38,8 +38,24 @@ TronaldClient client = new TronaldClient();
 Quote quote = client.getQuote("wAgIgzV1S9OARKhfun3f0A");
 System.out.println(quote.getValue());
 
+// Retrieve a random Tronald quote
+Quote quote = client.getRandomQuote();
+System.out.println(quote.getValue());
+
+// Retrieve a random Tronald quote tagged with "Hillary Clinton"
+Quote quote = client.getRandomQuote("Hillary Clinton");
+System.out.println(quote.getValue());
+
 // Perform a free text search
-List<Quote> quotes = client.search("money");
+Page<Quote> page = client.search("money");
+List<Quote> quotes = page.getContent();
+
+// Retrieve the next page in the search result 
+Page<Quote> firstPage = client.search("clinton");
+if (firstPage.hasNext() {
+    Page<quote> nextPage = client.search("clinton", firstPage.nextPageable());
+    ..
+}
 ```
 
 ## License

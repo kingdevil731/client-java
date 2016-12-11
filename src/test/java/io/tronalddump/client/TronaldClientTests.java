@@ -89,8 +89,31 @@ public class TronaldClientTests {
         try {
             client.getRandomQuote("foo");
             fail();
-        } catch (TronaldException e) {
-            assertThat(e.getMessage(), is(equalTo("Error retrieving random quote: (#404) Could not find a random quote.")));
+        } catch (TronaldHttpException e) {
+            assertThat(e.getHttpStatus(), is(equalTo(404)));
+            assertThat(e.getMessage(), is(equalTo("Could not find a random quote.")));
         }
+    }
+
+    @Test
+    public void testSearch() {
+        Page<Quote> page = client.search("Hillary Clinton");
+        assertThat(page.getNumber(), is(equalTo(1)));
+        assertThat(page.getSize(), is(equalTo(25)));
+        assertThat(page.getNumberOfElements(), is(equalTo(25)));
+        assertThat(page.getTotalElements(), is(greaterThan(25L)));
+        assertThat(page.getTotalPages(), is(greaterThan(1)));
+        assertThat(page.getContent(), hasSize(equalTo(25)));
+    }
+
+    @Test
+    public void testSearchNoResults() {
+        Page<Quote> page = client.search("foobar");
+        assertThat(page.getNumber(), is(equalTo(1)));
+        assertThat(page.getSize(), is(equalTo(25)));
+        assertThat(page.getNumberOfElements(), is(equalTo(0)));
+        assertThat(page.getTotalElements(), is(equalTo(0L)));
+        assertThat(page.getTotalPages(), is(equalTo(0)));
+        assertThat(page.getContent(), hasSize(equalTo(0)));
     }
 }

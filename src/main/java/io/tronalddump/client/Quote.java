@@ -16,6 +16,7 @@
 
 package io.tronalddump.client;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,7 +27,9 @@ import java.util.List;
  * @author Marcel Overdijk
  * @since 1.0.0
  */
-public class Quote {
+public class Quote implements Serializable {
+
+    private static final long serialVersionUID = -2502900563432123970L;
 
     private String id;
     private String value;
@@ -93,21 +96,20 @@ public class Quote {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Quote quote = (Quote) o;
-        if (id != null ? !id.equals(quote.id) : quote.id != null) {
+        Quote other = (Quote) o;
+        if (id != null ? !id.equals(other.id) : other.id != null) {
             return false;
         }
-        if (value != null ? !value.equals(quote.value) : quote.value != null) {
+        if (value != null ? !value.equals(other.value) : other.value != null) {
             return false;
         }
-        if (sourceUrl != null ? !sourceUrl.equals(quote.sourceUrl) : quote.sourceUrl != null) {
+        if (sourceUrl != null ? !sourceUrl.equals(other.sourceUrl) : other.sourceUrl != null) {
             return false;
         }
-        if (date != null ? !date.equals(quote.date) : quote.date != null) {
+        if (date != null ? !date.equals(other.date) : other.date != null) {
             return false;
         }
-        return tags != null ? tags.equals(quote.tags) : quote.tags == null;
-
+        return tags != null ? tags.equals(other.tags) : other.tags == null;
     }
 
     @Override
