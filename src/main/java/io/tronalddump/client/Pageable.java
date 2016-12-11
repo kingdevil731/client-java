@@ -39,10 +39,10 @@ public class Pageable implements Serializable {
 
     public Pageable(int page, int size) {
         if (page < 1) {
-            throw new IllegalArgumentException("Page index must not be less than one!");
+            throw new IllegalArgumentException("'page' must not be less than one");
         }
         if (size < 1) {
-            throw new IllegalArgumentException("Page size must not be less than one!");
+            throw new IllegalArgumentException("'size' must not be less than one");
         }
         this.page = page;
         this.size = size;
@@ -54,22 +54,6 @@ public class Pageable implements Serializable {
 
     public int getSize() {
         return size;
-    }
-
-    public Pageable next() {
-        return new Pageable(page + 1, size);
-    }
-
-    public Pageable previous() {
-        return page == 1 ? this : new Pageable(page - 1, size);
-    }
-
-    public Pageable first() {
-        return new Pageable(1, size);
-    }
-
-    public Pageable previousOrFirst() {
-        return page > 1 ? previous() : first();
     }
 
     @Override
@@ -100,5 +84,33 @@ public class Pageable implements Serializable {
                 "page=" + page +
                 ", size=" + size +
                 '}';
+    }
+
+    public static final class PageableBuilder {
+
+        private int page = 1;
+        private int size = 25;
+
+        private PageableBuilder() {
+        }
+
+        public static PageableBuilder aPageable() {
+            return new PageableBuilder();
+        }
+
+        public PageableBuilder withPage(int page) {
+            this.page = page;
+            return this;
+        }
+
+        public PageableBuilder withSize(int size) {
+            this.size = size;
+            return this;
+        }
+
+        public Pageable build() {
+            Pageable pageable = new Pageable(page, size);
+            return pageable;
+        }
     }
 }

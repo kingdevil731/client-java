@@ -97,13 +97,35 @@ public class TronaldClientTests {
 
     @Test
     public void testSearch() {
-        Page<Quote> page = client.search("Hillary Clinton");
+        Page<Quote> page = client.search("clinton");
         assertThat(page.getNumber(), is(equalTo(1)));
         assertThat(page.getSize(), is(equalTo(25)));
         assertThat(page.getNumberOfElements(), is(equalTo(25)));
         assertThat(page.getTotalElements(), is(greaterThan(25L)));
         assertThat(page.getTotalPages(), is(greaterThan(1)));
         assertThat(page.getContent(), hasSize(equalTo(25)));
+    }
+
+    @Test
+    public void testSearchWithPageSize() {
+        Page<Quote> page = client.search("clinton", 10);
+        assertThat(page.getNumber(), is(equalTo(1)));
+        assertThat(page.getSize(), is(equalTo(10)));
+        assertThat(page.getNumberOfElements(), is(equalTo(10)));
+        assertThat(page.getTotalElements(), is(greaterThan(25L)));
+        assertThat(page.getTotalPages(), is(greaterThan(1)));
+        assertThat(page.getContent(), hasSize(equalTo(10)));
+    }
+
+    @Test
+    public void testSearchWithPageNumberAndPageSize() {
+        Page<Quote> page = client.search("clinton", 2, 15);
+        assertThat(page.getNumber(), is(equalTo(2)));
+        assertThat(page.getSize(), is(equalTo(15)));
+        assertThat(page.getNumberOfElements(), is(equalTo(15)));
+        assertThat(page.getTotalElements(), is(greaterThan(25L)));
+        assertThat(page.getTotalPages(), is(greaterThan(1)));
+        assertThat(page.getContent(), hasSize(equalTo(15)));
     }
 
     @Test

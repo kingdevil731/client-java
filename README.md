@@ -47,14 +47,29 @@ Quote quote = client.getRandomQuote("Hillary Clinton");
 System.out.println(quote.getValue());
 
 // Perform a free text search
-Page<Quote> page = client.search("money");
-List<Quote> quotes = page.getContent();
+Page<Quote> page = client.search("clinton");
+for (Quote quote : page) {
+    System.out.println(quote.getValue());
+}
 
 // Retrieve the next page in the search result 
-Page<Quote> firstPage = client.search("clinton");
-if (firstPage.hasNext() {
-    Page<quote> nextPage = client.search("clinton", firstPage.nextPageable());
+if (page.hasNext() {
+    Page<quote> nextPage = client.search("clinton", page.nextPageable());
     ..
+}
+
+// Perform a free text search with a different page size
+Page<Quote> page = client.search("clinton", 10);
+for (Quote quote : page) {
+    System.out.println(quote.getValue());
+}
+
+// Or even customize the pagination completely with the PageableBuilder
+import static io.tronalddump.client.Pageable.PageableBuilder.aPageable;
+
+Page<Quote> page = client.search("clinton", aPageable().withPage(1).withSize(5).build());
+for (Quote quote : page) {
+    System.out.println(quote.getValue());
 }
 ```
 

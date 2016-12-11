@@ -32,7 +32,7 @@ import static java.util.Objects.requireNonNull;
  * @author Marcel Overdijk
  * @since 1.0.0
  */
-public class Page<T> implements Iterable, Serializable {
+public class Page<T> implements Iterable<T>, Serializable {
 
     private static final long serialVersionUID = -2555433043215957877L;
 
@@ -48,7 +48,7 @@ public class Page<T> implements Iterable, Serializable {
     }
 
     @Override
-    public Iterator iterator() {
+    public Iterator<T> iterator() {
         return content.iterator();
     }
 
@@ -80,12 +80,12 @@ public class Page<T> implements Iterable, Serializable {
         return total;
     }
 
-    public boolean hasPrevious() {
-        return getNumber() > 0;
-    }
-
     public boolean hasNext() {
         return getNumber() + 1 < getTotalPages();
+    }
+
+    public boolean hasPrevious() {
+        return getNumber() > 1;
     }
 
     public boolean isFirst() {
@@ -97,22 +97,17 @@ public class Page<T> implements Iterable, Serializable {
     }
 
     public Pageable nextPageable() {
-        return hasNext() ? pageable.next() : null;
-    }
-
-    public Pageable previousPageable() {
-        if (hasPrevious()) {
-            return pageable.previousOrFirst();
+        if (hasNext()) {
+            return new Pageable(pageable.getPage() + 1, pageable.getSize());
         }
         return null;
     }
 
-    public Pageable firstPageable() {
-        return pageable.first();
-    }
-
-    public Pageable lastPageable() {
-        return new Pageable(getTotalPages(), pageable.getSize());
+    public Pageable previousPageable() {
+        if (hasPrevious()) {
+            return new Pageable(pageable.getPage() - 1, pageable.getSize());
+        }
+        return null;
     }
 
     @Override

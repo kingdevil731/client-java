@@ -21,7 +21,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,6 +31,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import static io.tronalddump.client.Pageable.PageableBuilder.aPageable;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -143,19 +143,19 @@ public class TronaldClient {
      * @throws TronaldException in case an error occurs while retrieving the random quote
      */
     public Page<Quote> search(String query) throws TronaldException {
-        return search(query, 1);
+        return search(query, aPageable().build());
     }
 
     /**
      * Returns a page of quotes for the given free text query.
      *
      * @param query the free text query, not null
-     * @param page the page number
+     * @param size the page size
      * @return the page of quotes
      * @throws TronaldException in case an error occurs while retrieving the random quote
      */
-    public Page<Quote> search(String query, int page) throws TronaldException {
-        return search(query, page, 25);
+    public Page<Quote> search(String query, int size) throws TronaldException {
+        return search(query, aPageable().withSize(size).build());
     }
 
     /**
@@ -168,14 +168,14 @@ public class TronaldClient {
      * @throws TronaldException in case an error occurs while retrieving the random quote
      */
     public Page<Quote> search(String query, int page, int size) throws TronaldException {
-        return search(query, new Pageable(page, size));
+        return search(query, aPageable().withPage(page).withSize(size).build());
     }
 
     /**
      * Returns a page of quotes for the given free text query.
      *
      * @param query the free text query, not null
-     * @param pageable the pagination inforamtion, not null
+     * @param pageable the pagination information, not null
      * @return the page of quotes
      * @throws TronaldException in case an error occurs while retrieving the random quote
      */
@@ -199,7 +199,7 @@ public class TronaldClient {
                     JSONArray jsonQuotes = jsonEmbedded.optJSONArray("quotes");
                     if (jsonQuotes != null && jsonQuotes.length() > 0) {
                         for (int i = 0; i < jsonQuotes.length(); i++) {
-                            JSONObject jsonQuote = jsonQuotes.optJSONObject(0);
+                            JSONObject jsonQuote = jsonQuotes.optJSONObject(i);
                             Quote quote = parseQuote(jsonQuote);
                             content.add(quote);
                         }
