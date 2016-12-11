@@ -37,38 +37,83 @@ public class Quote implements Serializable {
     private Date date;
     private List<String> tags = new ArrayList<>();
 
+    /**
+     * Returns the unique id of the quote.
+     *
+     * @return the unique id
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Sets the unique id of the quote.
+     *
+     * @param id the unique id
+     */
     public void setId(String id) {
         this.id = id;
     }
 
+    /**
+     * Returns the actual quote.
+     *
+     * @return the quote
+     */
     public String getValue() {
         return value;
     }
 
+    /**
+     * Sets the actual quote.
+     *
+     * @param value the quote value
+     */
     public void setValue(String value) {
         this.value = value;
     }
 
+    /**
+     * Returns the source url of the quote.
+     *
+     * @return the source url
+     */
     public String getSourceUrl() {
         return sourceUrl;
     }
 
+    /**
+     * Sets the source url of the quote.
+     *
+     * @param sourceUrl the source url
+     */
     public void setSourceUrl(String sourceUrl) {
         this.sourceUrl = sourceUrl;
     }
 
+    /**
+     * Returns the date of the quote.
+     *
+     * @return the date
+     */
     public Date getDate() {
         return date;
     }
 
+    /**
+     * Sets the date of the quote.
+     *
+     * @param date the date
+     */
     public void setDate(Date date) {
         this.date = date;
     }
 
+    /**
+     * Returns the tags associated with the quote.
+     *
+     * @return the tags, not null
+     */
     public List<String> getTags() {
         if (tags == null) {
             tags = new ArrayList<>();
@@ -76,14 +121,29 @@ public class Quote implements Serializable {
         return tags;
     }
 
+    /**
+     * Sets the tags associated with the quote.
+     *
+     * @param tags the tags
+     */
     public void setTags(List<String> tags) {
         this.tags = tags;
     }
 
+    /**
+     * Adds a tag to the list of tags associated with the quote.
+     *
+     * @param tag the tag
+     */
     public void addTag(String tag) {
         getTags().add(tag);
     }
 
+    /**
+     * Adds the tags to the list of tags associated with the quote.
+     *
+     * @param tags the tags
+     */
     public void addTags(List<String> tags) {
         getTags().addAll(tags);
     }

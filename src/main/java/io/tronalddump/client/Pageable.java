@@ -37,6 +37,12 @@ public class Pageable implements Serializable {
     private int page;
     private int size;
 
+    /**
+     * Creates a new {@code Pageable} with the give page numner and page size.
+     *
+     * @param page the page number, must not be less than one
+     * @param size the page size, must not be less than one
+     */
     public Pageable(int page, int size) {
         if (page < 1) {
             throw new IllegalArgumentException("'page' must not be less than one");
@@ -48,10 +54,20 @@ public class Pageable implements Serializable {
         this.size = size;
     }
 
+    /**
+     * Returns the page number.
+     *
+     * @return the page number
+     */
     public int getPage() {
         return page;
     }
 
+    /**
+     * Returns the page size.
+     *
+     * @return the page size
+     */
     public int getSize() {
         return size;
     }
