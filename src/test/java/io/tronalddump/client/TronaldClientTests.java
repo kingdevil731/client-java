@@ -135,7 +135,7 @@ public class TronaldClientTests {
         assertThat(page.getSize(), is(equalTo(25)));
         assertThat(page.getNumberOfElements(), is(equalTo(0)));
         assertThat(page.getTotalElements(), is(equalTo(0L)));
-        assertThat(page.getTotalPages(), is(equalTo(0)));
+        assertThat(page.getTotalPages(), is(equalTo(1)));
         assertThat(page.getContent(), hasSize(equalTo(0)));
     }
 }
